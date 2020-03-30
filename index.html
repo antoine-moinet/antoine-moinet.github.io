@@ -2715,8 +2715,85 @@ summary(data.fitCropSpecies)</code></pre>
 
 
 
+<div id="exercise-11-by-aurelie-pahud-de-mortanges" class="section level2">
+<h2>Exercise 11 (by Aurelie Pahud de Mortanges)</h2>
+<p>A scientist is interested in how genotype of a strawberry plant affects fruit yield. There are three levels of genotype (AA, AB, BB) and ten plots of land, three plants per plot. Each of the three genotypes is present in each plot. The data is in the file strawb.dat available on ILIAS.</p>
+<pre class="r"><code>library(readr)
+strawb &lt;- read_table2(&quot;strawb.dat&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   land = col_double(),
+##   gtype = col_character(),
+##   yield = col_double()
+## )</code></pre>
+<pre class="r"><code>View(strawb)</code></pre>
+</div>
+<div id="a" class="section level2">
+<h2>A</h2>
+<p>Perform an ANOVA, assuming one-way randomized block design.</p>
+<pre class="r"><code>strawb$land &lt;- factor(strawb$land)
+
+strawberry_block_model &lt;- lm(yield ~ gtype + land, data = strawb)
+strawberry_block_model</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = yield ~ gtype + land, data = strawb)
+## 
+## Coefficients:
+## (Intercept)      gtypeAB      gtypeBB        land2        land3        land4  
+##    14.56503     -0.97392      6.05031      3.42526      1.06155     -0.09913  
+##       land5        land6        land7        land8        land9       land10  
+##    -1.70806      3.12605     -3.34020     -0.04894      1.69289     -0.57064</code></pre>
+<pre class="r"><code>anova(strawberry_block_model)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: yield
+##           Df Sum Sq Mean Sq F value Pr(&gt;F)  
+## gtype      2 289.65 144.824  5.4056 0.0145 *
+## land       9 115.97  12.886  0.4810 0.8687  
+## Residuals 18 482.25  26.792                 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="b" class="section level2">
+<h2>B</h2>
+<p>Repeat the analysis of variance without taking into account land effects.</p>
+<pre class="r"><code>strawberry_no_block_model &lt;- lm(yield ~ gtype, data = strawb)
+strawberry_no_block_model</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = yield ~ gtype, data = strawb)
+## 
+## Coefficients:
+## (Intercept)      gtypeAB      gtypeBB  
+##     14.9189      -0.9739       6.0503</code></pre>
+<pre class="r"><code>anova(strawberry_no_block_model)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: yield
+##           Df Sum Sq Mean Sq F value   Pr(&gt;F)   
+## gtype      2 289.65 144.824  6.5364 0.004841 **
+## Residuals 27 598.22  22.156                    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="c" class="section level2">
+<h2>C</h2>
+<p>Compare the results in a) and b). Why are the degrees of freedom different? Which result would you use?</p>
+<p>I think I would use the simpler model in b) Because in the model in a) that includes blocks, genotype is significant, but only on a &gt;0.05 level (0.0145). In b), in the model without blocks, genotype becomes significant on a &gt;0.01 level (0.004841). Also land does not seem to have big influence, because it is by far not significant (0.8687).</p>
+</div>
+
+
+
+
 </div>
 </div>
+
+
+
+
+
+
 
 </div>
 
