@@ -2967,11 +2967,322 @@ summary(RIKZ_backward_model)</code></pre>
 ## Multiple R-squared:  0.7807, Adjusted R-squared:  0.7243 
 ## F-statistic: 13.84 on 9 and 35 DF,  p-value: 3.82e-09</code></pre>
 <p>–&gt; “Exposure” got removed in the automated backward selection. We end up with the model log(Richness + 1) ~ NAP + Beach. Even though not all beaches show significant results beach is kept, because I can’t just remove individual parameters from a variable.</p>
+</div>
+
+<div id="exercise-17-by-harsh-aurelie-dona-loraine" class="section level1">
+<h1>Exercise 17 (by Harsh, Aurelie, Dona, Loraine)</h1>
+
+<div id="dataset-exporting" class="section level2">
+<h2>Dataset Exporting:</h2>
+<p>Originally in this exercise the “wle” package should have been used. But this package doesn’t work anymore, since it hasn’t been properly updated. There are two ways how we can still solve the exercise:</p>
+<ol style="list-style-type: decimal">
+<li>Since we don’t need any functions from the “wle” package, we can just load the hald dataset:</li>
+</ol>
+<p>The archive file was downloaded from CRAN and unarchived to obtain the hald data. The data was transformed in a matrix and then the cement dataset was obtained by few modifications in the variable</p>
+<p>hald &lt;- matrix(c(78.5,7,26,6,60,74.3,1,29,15,52,104.3,11,56,8,20,87.6,11,31,8,47,95.9,7,52,6,33,109.2,11,55,9,22,102.7,3,71,17,6,72.5,1,31,22,44,93.1,2,54,18,22,115.9,21,47,4,26,83.8,1,40,23,34,113.3,11,66,9,12,109.4,10,68,8,12),ncol=5,byrow=TRUE)</p>
+<p>x.hald &lt;- hald[,2:5] y.hald &lt;- hald[,1]</p>
+<ol start="2" style="list-style-type: decimal">
+<li>We use the “lmridge” package, which also contains the hald data we need. We did this option as it doesn’t require much complications.</li>
+</ol>
+<p>You now have a matrix called hald which you can standardize and transform into a data frame as follows:</p>
+<pre class="r"><code>#install.packages(&quot;lmridge&quot;)
+library(lmridge)
+data(Hald, package = &quot;lmridge&quot;)
+
+cement &lt;- data.frame(scale(Hald))
+names(cement) &lt;- c(&quot;y&quot;, &quot;x1&quot;, &quot;x2&quot;, &quot;x3&quot;, &quot;x4&quot;)</code></pre>
+<p>y is the (standardized) response variable (heat evolved in a cement mix), x1 to x4 are explanatory variables indicating the composition of the cement mix.</p>
+</div>
+<div id="part-a" class="section level2">
+<h2>Part A:</h2>
+<p>Start with an empty linear model and perform forward selection using the function “stepAIC” from the MASS package. Which linear model do you get in the end?</p>
+<pre class="r"><code>library(MASS)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;MASS&#39;</code></pre>
+<pre><code>## The following object is masked _by_ &#39;.GlobalEnv&#39;:
+## 
+##     cement</code></pre>
+<pre class="r"><code>model_empty &lt;- lm(y ~ 1, data = cement)
+
+model_forward &lt;- stepAIC(model_empty, scope = ~ x1 + x2 + x3 + x4, direction = &quot;forward&quot;, trace = 0)
+summary(model_forward)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x4 + x1 + x2, data = cement)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.20553 -0.11976  0.01703  0.08520  0.25913 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2.601e-16  4.256e-02   0.000   1.0000    
+## x4          -2.632e-01  1.928e-01  -1.365   0.2054    
+## x1           5.677e-01  4.575e-02  12.410 5.78e-07 ***
+## x2           4.304e-01  1.920e-01   2.242   0.0517 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1535 on 9 degrees of freedom
+## Multiple R-squared:  0.9823, Adjusted R-squared:  0.9764 
+## F-statistic: 166.8 on 3 and 9 DF,  p-value: 3.323e-08</code></pre>
+<p>The final formula is the following: lm(formula = y ~ x4 + x1 + x2, data = cement). “x1”, “x2” and “x4” are being used in the model, “x3” is being left out.</p>
+</div>
+<div id="part-b" class="section level2">
+<h2>Part B:</h2>
+<p>Repeat the analysis of a) on two reduced data sets: 1. the cement data set without row 3 2. the cement data set without row 10. Do you get the same model as in a)?</p>
+<div id="removing-the-3rd-row" class="section level3">
+<h3>1. Removing the 3rd row:</h3>
+<pre class="r"><code>cement_w.o.3 &lt;- cement[-c(3), ]
+cement_w.o.3</code></pre>
+<pre><code>##              y          x1          x2         x3         x4
+## 1  -1.12492615 -0.07846099 -1.42368840 -0.9007209  1.7923096
+## 2  -1.40411237 -1.09845379 -1.23089726  0.5044037  1.3143603
+## 4  -0.52002268  0.60153422 -1.10236984 -0.5884710  1.0156421
+## 5   0.03170246 -0.07846099  0.24716813 -0.9007209  0.1792310
+## 6   0.91579215  0.60153422  0.43995926 -0.4323460 -0.4779492
+## 7   0.48371824 -0.75845619  1.46817866  0.8166536 -1.4338477
+## 8  -1.52376360 -1.09845379 -1.10236984  1.5972783  0.8364111
+## 9  -0.15442168 -0.92845499  0.37569555  0.9727785 -0.4779492
+## 10  1.36116064  2.30152223 -0.07415044 -1.2129708 -0.2389746
+## 11 -0.77261973 -1.09845379 -0.52399643  1.7534033  0.2389746
+## 12  1.18833108  0.60153422  1.14686010 -0.4323460 -1.0753857
+## 13  0.92908673  0.43153542  1.27538753 -0.5884710 -1.0753857</code></pre>
+<pre class="r"><code>model_empty_w.o.3 &lt;- lm(y ~ 1, data = cement_w.o.3)
+summary(model_empty_w.o.3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ 1, data = cement_w.o.3)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.47459 -0.81152 -0.01219  0.96829  1.41033 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) -0.04917    0.29673  -0.166    0.871
+## 
+## Residual standard error: 1.028 on 11 degrees of freedom</code></pre>
+<pre class="r"><code>model_forward_w.o.3 &lt;- stepAIC(model_empty_w.o.3, scope = ~ x1 + x2 + x3 + x4, direction = &quot;forward&quot;, trace = 0)
+summary(model_forward_w.o.3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x4 + x1 + x3, data = cement_w.o.3)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.18605 -0.12171  0.01736  0.06743  0.22509 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.01664    0.04390   0.379  0.71453    
+## x4          -0.72584    0.04826 -15.040 3.77e-07 ***
+## x1           0.41051    0.08399   4.888  0.00121 ** 
+## x3          -0.18552    0.08187  -2.266  0.05321 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1517 on 8 degrees of freedom
+## Multiple R-squared:  0.9842, Adjusted R-squared:  0.9782 
+## F-statistic: 165.7 on 3 and 8 DF,  p-value: 1.539e-07</code></pre>
+</div>
+<div id="removing-the-10th-row" class="section level3">
+<h3>2. Removing the 10th row:</h3>
+<pre class="r"><code>cement_w.o.10 &lt;- cement[-c(10), ]
+cement_w.o.10</code></pre>
+<pre><code>##              y          x1         x2         x3         x4
+## 1  -1.12492615 -0.07846099 -1.4236884 -0.9007209  1.7923096
+## 2  -1.40411237 -1.09845379 -1.2308973  0.5044037  1.3143603
+## 3   0.59007490  0.60153422  0.5042230 -0.5884710 -0.5974365
+## 4  -0.52002268  0.60153422 -1.1023698 -0.5884710  1.0156421
+## 5   0.03170246 -0.07846099  0.2471681 -0.9007209  0.1792310
+## 6   0.91579215  0.60153422  0.4399593 -0.4323460 -0.4779492
+## 7   0.48371824 -0.75845619  1.4681787  0.8166536 -1.4338477
+## 8  -1.52376360 -1.09845379 -1.1023698  1.5972783  0.8364111
+## 9  -0.15442168 -0.92845499  0.3756956  0.9727785 -0.4779492
+## 11 -0.77261973 -1.09845379 -0.5239964  1.7534033  0.2389746
+## 12  1.18833108  0.60153422  1.1468601 -0.4323460 -1.0753857
+## 13  0.92908673  0.43153542  1.2753875 -0.5884710 -1.0753857</code></pre>
+<pre class="r"><code>model_empty_w.o.10 &lt;- lm(y ~ 1, data = cement_w.o.10)
+summary(model_empty_w.o.10)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ 1, data = cement_w.o.10)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.41033 -0.74727  0.05207  0.78493  1.30176 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept)  -0.1134     0.2751  -0.412    0.688
+## 
+## Residual standard error: 0.9531 on 11 degrees of freedom</code></pre>
+<pre class="r"><code>model_forward_w.o.10 &lt;- stepAIC(model_empty_w.o.10, scope = ~ x1 + x2 + x3 + x4, direction = &quot;forward&quot;, trace = 0)
+summary(model_forward_w.o.10)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x2 + x1, data = cement_w.o.10)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.17269 -0.09164 -0.06213  0.08767  0.30454 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -0.01548    0.04877  -0.317    0.758    
+## x2           0.69564    0.04985  13.955 2.11e-07 ***
+## x1           0.53311    0.06899   7.727 2.92e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1625 on 9 degrees of freedom
+## Multiple R-squared:  0.9762, Adjusted R-squared:  0.9709 
+## F-statistic: 184.7 on 2 and 9 DF,  p-value: 4.931e-08</code></pre>
+<p>We get different models than in a): -&gt; For the data without row 3 the model is: lm(formula = y ~ x4 + x1 + x3, data = cement_w.o.3) -&gt; For the data without row 10 the model is: lm(formula = y ~ x2 + x1, data = cement_w.o.10) -&gt; The models are not the same as in a) even though the input data is almost the same. This could be due to collinearity, as this causes instability of coefficient predictions with an ordinary linear regression (=ordinary least squared regression). This is because a regression coefficient represents the mean change in the dependent variable for each 1 unit change in an independent variable when you hold all other independent variables constant – holding the others constant can however not be accomplished if there is strong collinearity –&gt; the model has problems getting the coefficient estimates, and the coefficient estimates can swing widely based on which other independent variables are in the model! They are very sensitive to small changes in the model! We should look into that!</p>
+</div>
+</div>
+<div id="part-c" class="section level2">
+<h2>Part C:</h2>
+<p>For the model of a) and the two models of b), calculate the difference <span class="math inline">\(\hat{\beta}_2 - \hat{\beta}_4\)</span>, where <span class="math inline">\(\hat{\beta}_i\)</span> stands for the fitted regression coefficient associated to variable <span class="math inline">\(X_i\)</span>. What do you observe? How do you explain that?</p>
+<p>Model difference:</p>
+<pre class="r"><code>dif_b2_b4_fm &lt;- (model_forward$coefficients[which = &quot;x2&quot;]) - (model_forward$coefficients[which = &quot;x4&quot;])
+dif_b2_b4_fm</code></pre>
+<pre><code>##        x2 
+## 0.6935974</code></pre>
+<pre class="r"><code>summary(model_forward)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x4 + x1 + x2, data = cement)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.20553 -0.11976  0.01703  0.08520  0.25913 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  2.601e-16  4.256e-02   0.000   1.0000    
+## x4          -2.632e-01  1.928e-01  -1.365   0.2054    
+## x1           5.677e-01  4.575e-02  12.410 5.78e-07 ***
+## x2           4.304e-01  1.920e-01   2.242   0.0517 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1535 on 9 degrees of freedom
+## Multiple R-squared:  0.9823, Adjusted R-squared:  0.9764 
+## F-statistic: 166.8 on 3 and 9 DF,  p-value: 3.323e-08</code></pre>
+<pre class="r"><code>dif_b2_b4_w.o.3 &lt;- (0) - (model_forward_w.o.3$coefficients[which = &quot;x4&quot;])
+dif_b2_b4_w.o.3</code></pre>
+<pre><code>##        x4 
+## 0.7258366</code></pre>
+<pre class="r"><code>summary(model_forward_w.o.3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x4 + x1 + x3, data = cement_w.o.3)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.18605 -0.12171  0.01736  0.06743  0.22509 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.01664    0.04390   0.379  0.71453    
+## x4          -0.72584    0.04826 -15.040 3.77e-07 ***
+## x1           0.41051    0.08399   4.888  0.00121 ** 
+## x3          -0.18552    0.08187  -2.266  0.05321 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1517 on 8 degrees of freedom
+## Multiple R-squared:  0.9842, Adjusted R-squared:  0.9782 
+## F-statistic: 165.7 on 3 and 8 DF,  p-value: 1.539e-07</code></pre>
+<pre class="r"><code>dif_b2_b4_w.o.10 &lt;- (model_forward_w.o.10$coefficients[which = &quot;x2&quot;]) - (0)
+dif_b2_b4_w.o.10</code></pre>
+<pre><code>##        x2 
+## 0.6956389</code></pre>
+<pre class="r"><code>summary(model_forward_w.o.10)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = y ~ x2 + x1, data = cement_w.o.10)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.17269 -0.09164 -0.06213  0.08767  0.30454 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -0.01548    0.04877  -0.317    0.758    
+## x2           0.69564    0.04985  13.955 2.11e-07 ***
+## x1           0.53311    0.06899   7.727 2.92e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1625 on 9 degrees of freedom
+## Multiple R-squared:  0.9762, Adjusted R-squared:  0.9709 
+## F-statistic: 184.7 on 2 and 9 DF,  p-value: 4.931e-08</code></pre>
+<pre class="r"><code>diff &lt;- data.frame(dif_b2_b4_fm, dif_b2_b4_w.o.3, dif_b2_b4_w.o.10, row.names = &quot;difference&quot;)
+diff</code></pre>
+<pre><code>##            dif_b2_b4_fm dif_b2_b4_w.o.3 dif_b2_b4_w.o.10
+## difference    0.6935974       0.7258366        0.6956389</code></pre>
+<pre class="r"><code>cor(cement$x2,cement$x4)</code></pre>
+<pre><code>## [1] -0.972955</code></pre>
+<pre class="r"><code>cor(cement_w.o.3$x2, cement_w.o.3$x4)</code></pre>
+<pre><code>## [1] -0.9726021</code></pre>
+<pre class="r"><code>cor(cement_w.o.10$x2, cement_w.o.10$x4)</code></pre>
+<pre><code>## [1] -0.9773193</code></pre>
+<p>Note that <span class="math inline">\(\hat{\beta}_2 - \hat{\beta}_4\)</span> gives three very similar values; this means that x<sub>2</sub> and x<sub>4</sub> must be very strongly negatively correlated, i.e. we indeed have a collinearity problem.</p>
+<p>Multicollinearity can create inaccurate estimates of the regression coefficients, inflate the standard errors of the regression coefficients, deflate the partial t-tests for the regression coefficients, give false, nonsignificant, pvalues, and degrade the predictability of the model.</p>
+<p>–&gt; ridge regression can be used to solve this problem. It introduces a relatively small bias, leading to a large reduction in variance of predictions.</p>
+</div>
+<div id="part-d" class="section level2">
+<h2>Part D:</h2>
+<p>Now, fit a linear model using ridge regression to the cement data set. Use a lambda range of <span class="math inline">\(\lambda \in [0,1]\)</span>. Which is the best <span class="math inline">\(\lambda\)</span> value according to the GCV value?</p>
+<pre class="r"><code>model_ridge &lt;- lm.ridge(y ~ x1 + x2 + x3 + x4, data = cement, lambda = seq(0, 1, by = 0.01))</code></pre>
+<p>Note: the function lm.ridge automatically standardizes the data; standardizing data should always be done for ridge regression as it makes the shrinking fair to each coefficient. This can be plotted:</p>
+<pre class="r"><code>par(mfrow=c(2,1), cex=0.5)
+plot(model_ridge)
+legend(&quot;right&quot;,bty=&quot;n&quot;, col=1:4, lty=1:4, legend=paste(&quot;beta[&quot;,1:4,&quot;]&quot;, sep=&quot;&quot;))
+
+plot(model_ridge$lambda, model_ridge$GCV, type=&quot;l&quot;, xlab=&quot;lambda&quot;, ylab=&quot;GCV&quot;)</code></pre>
+<p><img src="data:image/png;base64,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2GPgaggouXIxEbInoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChAkoABBAgoQJKAAQQIKECSgAEECChB0XkDnP36uX++r6uY50dMBmI6zAtr08/dNPFezx1RPCGAqzgnoavawiehd/eXi9iXREwKYivMC+rh+e3qov1xu5qIA1+28TfjN7HPx7Qy0Api6NAFdzX78bKagyxNHkcYeNkAPkgR0U8526XenluasKGDqkgW0t/UCZEpAAYJSBXSx2XxvzgBdHD8KL6DA5CUK6OLmeb2a1TtABRQoVZqAtueAvj3dvggoUKw0Ad19gHN++yKgQKlSzkDX9Qn1AgqUKtU+0G02V7NKQIFCpTsK327Evz0JKFCoaZwHKrdAhqYRUAUFMpQqoG9P7WfhT13MTkCByUt1EKnaHoZf7r4IrzfycIABJD6N6eT1QAUUmLy0J9KvT16RXkCByRt6Bnr+dUi3P3bWwwEGkGwf6HYK+nkfqIACxUh1FH41azN56p6cAgpMnvNAAYImElAFBfIzkRPpBRTIz0ROpBdQID8TOZFeQIH8TOREegEF8mMGChA09In056839niA5CZyIr2AAvlxHihAkIACBCUPaF+3NVZQIDdTmYEKKJAdAQUIElCAoKlcTERAgexM5WIiAgpkZyof5RRQIDtTuZiIgALZMQMFCJrKxUQEFMjOVC4moqBAdiZzHqiAArkRUIAgAQUIElCAIAEFCBJQgCABBQgSUICg6QRUQYHMCChAkIACBAkoQJCAAgQJKECQgAIECShAkIACBAkoQNCEAqqgQF4EFCBIQAGCBBQg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" width="672" /></p>
+<p>If we look at the ridge trace, the lambda we should pick is one for which the regression coefficients have stabilized (the regression coefficients often vary widely for small <span class="math inline">\(\lambda\)</span> and then stabilize). The smallest <span class="math inline">\(\lambda\)</span> should be chosen as it introduces the smallest bias. Note: increasing <span class="math inline">\(\lambda\)</span> will eventually drive the regression coefficients to zero.</p>
+<pre class="r"><code>select(model_ridge)</code></pre>
+<pre><code>## modified HKB estimator is 0.08499604 
+## modified L-W estimator is 0.05830686 
+## smallest value of GCV  at 0.32</code></pre>
+<p>The best <span class="math inline">\(\lambda\)</span> is the one with the smallest GCV value. Note: the HKB estimator and the L-W estimator refer to different estimate of the ridge constant <span class="math inline">\(\phi\)</span>, i.e. as a rough estimate, you can take <span class="math inline">\(\hat{\beta}_{ridge}=\hat{\phi}\hat{\beta}_{OLS}\)</span>), where OLS=ordinary least squares.</p>
+</div>
+<div id="part-e" class="section level2">
+<h2>Part E:</h2>
+<p>Indicate the coefficients of the ridge solution from d) for the determined optimal lambda. As in task b), repeat the ridge fit for the data set without row 3 and 10, respectively, both with the optimal lambda from task d). What do you observe?</p>
+<pre class="r"><code>model_ridge2 &lt;- lm.ridge(y ~ ., data = cement, lambda = which.min(model_ridge$GCV))
+coef.full &lt;- coef(model_ridge2)
+
+model_ridge_w.o.3 &lt;- lm.ridge(y ~ ., data = cement_w.o.3, lambda = which.min(model_ridge$GCV))
+coef.w.o.3 &lt;- coef(model_ridge_w.o.3)
+
+model_ridge_w.o.10 &lt;- lm.ridge(y ~ ., data = cement_w.o.10, lambda = which.min(model_ridge$GCV))
+coef.w.o.10 &lt;- coef(model_ridge_w.o.10)
+
+ridge &lt;- data.frame(coef.full, coef.w.o.3, coef.w.o.10)
+ridge</code></pre>
+<pre><code>##        coef.full  coef.w.o.3 coef.w.o.10
+##     1.927723e-16 -0.02156153 -0.07069794
+## x1  1.588718e-01  0.15193007  0.16858567
+## x2  1.684314e-01  0.16098364  0.16432162
+## x3 -1.060207e-01 -0.10053798 -0.08131035
+## x4 -1.738900e-01 -0.16672916 -0.16043173</code></pre>
+<p>Now, we finally extracted the estimated coefficients of the ridge fit.</p>
+<p>-&gt; The coefficients for x<sub>1</sub> to x<sub>4</sub> are very similar in all three models, i.e. we solved our problem of unstable predictions due to collinearity!</p>
+</div>
+<div id="thank-you" class="section level1">
+<h1>Thank You</h1>
+</div>
+
 
 
 
 </div>
-
 
 
 
